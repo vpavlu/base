@@ -1,20 +1,20 @@
 #!/bin/bash
 
 ##
-## creates a simple monthly-"rotating" scratch directory 
-## structure beneath $S. the latest directory is symlinked
-## to $T
+## creates a simple "rotating" scratch directory structure
+## The latest directory is symlinked to $LINK
 ##
 
-# open encrypted data/ directory
-luks is_mounted || luks open
+BASE="$HOME/data/s"
+LINK="$HOME/data/s/cur"
 
-S="$HOME/data/s"
-T="$HOME/data/s/cur"
 Y=`date +"%Y"`
 M=`date +"%m"`
-C="${S}/${Y}/${M}"
+W=`date +"%W"`
 
-mkdir -p $C
-ln -sfn $C $T
-echo $T
+WD="${Y}/${M}"
+
+mkdir -p "$BASE/$WD"
+ln -sfn "$WD" "$LINK"
+echo "$BASE/$WD"
+
