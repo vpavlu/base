@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function not { eval $@; [ 0 != $? ]; }
+
+while not ssh plain.at bin/luks is_open; do
+  stty -echo
+  read -p "Enter LUKS Passphrase: " pw; echo
+  stty echo
+  echo $pw | ssh plain.at bin/luks open 
+done
+
+if ssh plain.at bin/luks is_mounted; then
+  unison \
+    -ignore 'Path lost+found'\
+    -ignore 'Path .Trash-1000'\
+    -ignore 'Path .mozilla'\
+    -ignore 'Path sites/*/logs/error.log'\
+    -ignore 'Path sites/*/logs/access.log'\
+    -ignore 'Path sites/*/logs/mod_rewrite.log'\
+    -batch\
+    -sortnewfirst\
+    -xferbycopying\
+    -maxbackups 10\
+    -backup 'Name *'\
+    ~/data ssh://vpavlu@plain.at/data
+else
+  echo "luks not ready"
+  ssh plain.at bin/luks status
+fi
+ssh plain.at bin/luks close 
+echo "press Enter"
+read

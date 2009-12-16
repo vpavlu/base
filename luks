@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# MP = mountpoint for unencrypted data
+# IN = input image (container-file in filesystem or device in /dev/*)
+
+MP=/home/vpavlu/data
+#IN=/dev/mmcblk0p1
+#IN=/home/vpavlu/.data-container
+IN=`ls -r --color=none /dev/mmcblk*p1 | head -n 1`
+
+# ----
+
+BACKDEV=
+BACKDEVTYPE=  # checked by naming convention
+LUKSDEV=luks-data
+LOOPDEV=/dev/loop0
+
+function not { eval $@; [ 0 != $? ]; }
+function try_or_die {
+  eval "$@"
+  if [ 0 != $? ]; then echo -n " $@"; exit -1; fi
+}
+
+if echo $IN | grep '^/dev/' > /dev/null; then
+  BACKDEV=$IN
+  BACKDEVTYPE=physical
+  BACKDEVNAME=$IN
+  function open_device   { try_or_die "is_deviceopen"; }
+  function close_device  { echo -n ; }
+  function is_deviceopen { [ -e "$BACKDEV" ]; }
+else
+  BACKDEV=$LOOPDEV
+  BACKDEVTYPE=container-file
+  BACKDEVNAME="$LOOPDEV $IN"
+  container=$IN
+  function open_device {
+    is_deviceopen || try_or_die "sudo losetup $LOOPDEV $container && is_deviceopen"
+  }
+  function close_device {
+    is_deviceopen && try_or_die "sudo losetup -d $LOOPDEV && not is_deviceopen"
+  }
+  function is_deviceopen {
+    n=`echo $LOOPDEV | sed -e 's#/dev/loop##g'`
+    n=$(( n + 1 ))
+    [ -e "$container" ] && \
+    [ `sudo losetup -f` = "/dev/loop$n" ]
+  }
+fi
+
+function is_mounted     {
+  mountpoint -q $MP;
+}
+function is_luksopen    {
+  [ -e "/dev/mapper/$LUKSDEV" ] && \
+  mountpoint -x /dev/mapper/$LUKSDEV > /dev/null
+}
+
+case $1 in
+    is_open)     is_luksopen; exit ;;
+    is_mounted)  is_mounted;  exit ;;
+
+    open)
+    open_device
+    is_luksopen || try_or_die "sudo cryptsetup luksOpen $BACKDEV $LUKSDEV && is_luksopen"
+    is_mounted  || try_or_die "mount $MP && is_mounted"
+    $0 status
+    if [ is_mounted ]; then
+      exit 0
+    fi
+    exit 1
+    ;;
+
+    close)
+    is_mounted  && try_or_die "umount $MP && not is_mounted"
+    is_luksopen && try_or_die "sudo cryptsetup luksClose $LUKSDEV && not is_luksopen"
+    close_device
+    $0 status
+    ;;
+
+    fsck)
+    # opened device and luks mounted to /dev/mapper
+    open_device
+    is_luksopen || try_or_die "sudo cryptsetup luksOpen $BACKDEV $LUKSDEV && is_luksopen"
+    # but the partition inside luks MUST NOT be mounted
+    is_mounted  && try_or_die "umount $MP && not is_mounted"
+
+    sudo e2fsck -fcv -n "/dev/mapper/$LUKSDEV"
+    # = force check, check for bad blocks, verbose, no changes
+    $0 close
+    ;;
+
+    status)          echo "src_type: $BACKDEVTYPE"
+    is_deviceopen && echo "back_dev: $BACKDEVNAME" # $NAME is only for display
+    is_deviceopen || echo "back_dev: -"
+    is_luksopen   && echo "luks_dev: /dev/mapper/$LUKSDEV"
+    is_luksopen   || echo "luks_dev: -"
+    is_mounted    && echo "mntpoint: $MP"
+    is_mounted    || echo "mntpoint: -"
+    echo -e "\033[32mOK\033[0m"
+    #echo OK
+    ;;
+
+    *)
+    echo "Usage: $0 open|close|status|is_open|is_mounted|fsck"
+    ;;
+esac
+
