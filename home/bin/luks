@@ -1,12 +1,25 @@
 #!/bin/bash
 
+if [ ! -e ~/.luks ]; then
+  echo "$HOME/.luks does not exist"
+  echo "set MP and IN in $HOME/.luks:"
+  echo "  MP=$HOME/mountpoint/for/unencrypted/data"
+  echo ""
+  echo "  IN=$HOME/path/to/container-file"
+  echo "  or"
+  echo "  IN=/dev/partition/with/luks"
+  exit 1
+fi
+
 # MP = mountpoint for unencrypted data
 # IN = input image (container-file in filesystem or device in /dev/*)
 
-MP=/home/vpavlu/data
+source ~/.luks
+
+#MP=/home/vpavlu/data
 #IN=/dev/mmcblk0p1
 #IN=/home/vpavlu/.data-container
-IN=`ls -r --color=none /dev/mmcblk*p1 | head -n 1`
+#IN=`ls -r --color=none /dev/mmcblk*p1 | head -n 1`
 
 # ----
 
@@ -47,12 +60,26 @@ else
   }
 fi
 
-function is_mounted     {
-  mountpoint -q $MP;
+
+function open_luks {
+  is_luksopen || try_or_die "sudo cryptsetup luksOpen $BACKDEV $LUKSDEV && is_luksopen"
 }
-function is_luksopen    {
+function close_luks {
+  is_luksopen && try_or_die "sudo cryptsetup luksClose $LUKSDEV && not is_luksopen"
+}
+function is_luksopen {
   [ -e "/dev/mapper/$LUKSDEV" ] && \
   mountpoint -x /dev/mapper/$LUKSDEV > /dev/null
+}
+
+function mount_luks {
+  is_mounted || try_or_die "mount $MP && is_mounted"
+}
+function unmount_luks {
+  is_mounted && try_or_die "umount $MP && not is_mounted"
+}
+function is_mounted {
+  mountpoint -q $MP;
 }
 
 case $1 in
@@ -61,8 +88,8 @@ case $1 in
 
     open)
     open_device
-    is_luksopen || try_or_die "sudo cryptsetup luksOpen $BACKDEV $LUKSDEV && is_luksopen"
-    is_mounted  || try_or_die "mount $MP && is_mounted"
+    open_luks
+    mount_luks
     $0 status
     if [ is_mounted ]; then
       exit 0
@@ -71,21 +98,31 @@ case $1 in
     ;;
 
     close)
-    is_mounted  && try_or_die "umount $MP && not is_mounted"
-    is_luksopen && try_or_die "sudo cryptsetup luksClose $LUKSDEV && not is_luksopen"
+    unmount_luks
+    close_luks
     close_device
     $0 status
     ;;
 
     fsck)
-    # opened device and luks mounted to /dev/mapper
+    # open luks device but do not mount
     open_device
-    is_luksopen || try_or_die "sudo cryptsetup luksOpen $BACKDEV $LUKSDEV && is_luksopen"
-    # but the partition inside luks MUST NOT be mounted
-    is_mounted  && try_or_die "umount $MP && not is_mounted"
+    open_luks
+    unmount_luks
 
-    sudo e2fsck -fcv -n "/dev/mapper/$LUKSDEV"
     # = force check, check for bad blocks, verbose, no changes
+    sudo e2fsck -fcv -n "/dev/mapper/$LUKSDEV"
+    $0 close
+    ;;
+
+    fsfix)
+    # open luks device but do not mount
+    open_device
+    open_luks
+    unmount_luks
+
+    # = force check, check for bad blocks, verbose, repair
+    sudo e2fsck -fv -p "/dev/mapper/$LUKSDEV"
     $0 close
     ;;
 
@@ -101,7 +138,7 @@ case $1 in
     ;;
 
     *)
-    echo "Usage: $0 open|close|status|is_open|is_mounted|fsck"
+    echo "Usage: $0 open|close|status|is_open|is_mounted|fsck|fsfix"
     ;;
 esac
 
