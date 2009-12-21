@@ -1,0 +1,14 @@
+hide-password
+noauth
+connect "/usr/sbin/chat -f /etc/chatscripts/drei.at"
+# debug
+/dev/ttyUSB0
+460800
+defaultroute
+noipdefault
+noccp
+nobsdcomp
+# user "drei.at"
+# password "drei.at"
+# usepeerdns
+# connect-delay 10000

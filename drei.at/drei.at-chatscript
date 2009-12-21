@@ -1,0 +1,13 @@
+ABORT BUSY ABORT 'NO CARRIER' ABORT VOICE ABORT 'NO DIALTONE' ABORT 'NO DIAL TONE' ABORT 'NO ANSWER' ABORT DELAYED
+# init modem
+'' 'ATZ'
+# commented out as PIN is deactivated
+#TIMEOUT 5
+#OK AT+CPIN?
+#'READY-AT+CPIN=6335' ''
+#TIMEOUT 20
+# wait for modem so settle, connect
+'OK' 'AT+cgdcont=1,"IP","drei.at"'
+'OK' 'ATDT*99#'
+CONNECT \d\c
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# installs ppp and config files
+
+sudo aptitude install -y ppp
+
+sudo cp drei.at-chatscript /etc/chatscripts/drei.at
+sudo cp drei.at-peer       /etc/ppp/peers/drei.at
+
+sudo chown root:dip /etc/chatscripts/drei.at /etc/ppp/peers/drei.at
+sudo chmod 640      /etc/chatscripts/drei.at /etc/ppp/peers/drei.at
+
+echo "USAGE:"
+echo "  connect: pon drei.at"
+echo "    check: plog"
+echo ""
+echo "   hangup: poff"
