@@ -1,0 +1,7 @@
+#!/bin/bash
+
+AUTOLOGIN=vpavlu
+
+sudo aptitude -y install rungetty
+
+sudo sed -ie "s!exec /sbin/getty -8 38400 tty1!#exec /sbin/getty -8 38400 tty1\nexec /sbin/rungetty tty1 --autologin $AUTOLOGIN!" /etc/init/tty1.conf 
