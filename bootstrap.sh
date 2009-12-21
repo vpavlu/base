@@ -12,6 +12,9 @@ find . -type f -name .\* \
   -exec cp -v \{\} $HOME/\{\} \;
 popd
 
+sudo aptitude -y install \
+  vim
+
 
 #source base/setup-luks
 
@@ -20,33 +23,36 @@ sudo aptitude -y install \
   cryptsetup
 
 # size of container-file (in GB)
-CF_SIZE_GB=16
+CF_SIZE_G=16
 
 # location of container-file
 CF_LOCATION=$HOME/.data-container
 
 # create a container blob, attach loop device
 CF_DEVICE=`sudo losetup -f`
-dd if=/dev/zero of=${CF_LOCATION} bs=1M count=${CF_SIZE_GB}K
+dd if=/dev/zero of=${CF_LOCATION} bs=1G count=${CF_SIZE_G}
 sudo losetup $CF_DEVICE $CF_LOCATION
+
+# name of the /dev/mapper/$LUKS_DEVICE
+LUKS_DEVICE=data
 
 # use loop device as disk, setup luks
 sudo cryptsetup luksFormat --verify-passphrase $CF_DEVICE
-sudo cryptsetup luksOpen $CF_DEVICE $MOUNTPOINT
-sudo mkfs.ext3 /dev/mapper/data
-sudo fsck -f -y /dev/mapper/data
-sudo e2label /dev/mapper/data
-sudo tune2fs -l /dev/mapper/data
-sudo cryptsetup luksClose data
+sudo cryptsetup luksOpen $CF_DEVICE $LUKS_DEVICE
+sudo mkfs.ext3 /dev/mapper/$LUKS_DEVICE
+sudo fsck /dev/mapper/$LUKS_DEVICE
+# was macht das e2label??
+sudo e2label /dev/mapper/$LUKS_DEVICE
+sudo tune2fs -l /dev/mapper/$LUKS_DEVICE
+sudo cryptsetup luksClose $LUKS_DEVICE
 
 
 
 #source base/setup-wwan
 # FIXME setup drei.at stick in console
 
-
 #source base/setup-fluxbox
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   xorg \
   fluxbox \
   rungetty \
@@ -57,7 +63,8 @@ sudo aptitude -y install \
 # FIXME autostart of x server
 
 # utils
-sudo aptitude -y install \
+echo sudo aptitude -y install \
+  unison \
   apt-file \
   acpi \
   pwgen \
@@ -73,13 +80,13 @@ sudo aptitude -y install \
   wget
 
 # coding
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   gcc \
   g++ \
   make
 
 # coding docs
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   gcc-doc \
   manpages \
   manpages-dev \
@@ -88,14 +95,14 @@ sudo aptitude -y install \
   manpages-posix-dev
 
 # graphics
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   gimp \
   imagemagick \
   vlc \
   gpicview
 
 # latex
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   evince \
   texlive-latex-base \
   texlive-latex-recommended \
@@ -108,18 +115,18 @@ sudo aptitude -y install \
 #  texlive-latex-extra-doc
 
 # office
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   openoffice.org-writer \
   openoffice.org-calc
 
 # internet
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   firefox \
   pidgin \
   sun-java6-plugin
 
 # lamp
-sudo aptitude -y install \
+echo sudo aptitude -y install \
   libapache2-mod-php5 php5-mysql mysql-server mysql-client
 
 rm -rf base
