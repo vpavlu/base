@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# sets up a LUKS encrypted partition in a container-file
+
+# size of container-file (in GB)
+CF_SIZE_G=16
+
+# location of container-file
+CF_LOCATION=$HOME/.data-container
+
+
+# luks
+sudo aptitude -y install cryptsetup
+
+# create a container blob, attach loop device
+CF_DEVICE=`sudo losetup -f`
+dd if=/dev/zero of=${CF_LOCATION} bs=1G count=${CF_SIZE_G}
+sudo losetup $CF_DEVICE $CF_LOCATION
+
+# name of the /dev/mapper/$LUKS_DEVICE
+LUKS_DEVICE=data
+
+# use loop device as disk, setup luks
+sudo cryptsetup luksFormat --verify-passphrase $CF_DEVICE
+sudo cryptsetup luksOpen $CF_DEVICE $LUKS_DEVICE
+sudo mkfs.ext3 /dev/mapper/$LUKS_DEVICE
+#sudo fsck /dev/mapper/$LUKS_DEVICE
+#sudo e2label /dev/mapper/$LUKS_DEVICE
+#sudo tune2fs -l /dev/mapper/$LUKS_DEVICE
+sudo cryptsetup luksClose $LUKS_DEVICE
+

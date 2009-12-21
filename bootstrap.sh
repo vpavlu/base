@@ -16,40 +16,9 @@ sudo aptitude -y install \
   vim
 
 
-#source base/setup-luks
+bash base/setup-luks
+bash base/drei/setup-drei.at
 
-# luks
-sudo aptitude -y install \
-  cryptsetup
-
-# size of container-file (in GB)
-CF_SIZE_G=16
-
-# location of container-file
-CF_LOCATION=$HOME/.data-container
-
-# create a container blob, attach loop device
-CF_DEVICE=`sudo losetup -f`
-dd if=/dev/zero of=${CF_LOCATION} bs=1G count=${CF_SIZE_G}
-sudo losetup $CF_DEVICE $CF_LOCATION
-
-# name of the /dev/mapper/$LUKS_DEVICE
-LUKS_DEVICE=data
-
-# use loop device as disk, setup luks
-sudo cryptsetup luksFormat --verify-passphrase $CF_DEVICE
-sudo cryptsetup luksOpen $CF_DEVICE $LUKS_DEVICE
-sudo mkfs.ext3 /dev/mapper/$LUKS_DEVICE
-sudo fsck /dev/mapper/$LUKS_DEVICE
-# was macht das e2label??
-sudo e2label /dev/mapper/$LUKS_DEVICE
-sudo tune2fs -l /dev/mapper/$LUKS_DEVICE
-sudo cryptsetup luksClose $LUKS_DEVICE
-
-
-
-#source base/setup-wwan
-# FIXME setup drei.at stick in console
 
 #source base/setup-fluxbox
 echo sudo aptitude -y install \

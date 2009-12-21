@@ -1,0 +1,5 @@
+# luks config
+
+MP=$HOME/data
+IN=$HOME/.data-container
+#IN=/dev/sdb1
