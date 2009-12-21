@@ -1,7 +1,6 @@
 
 # some more ls aliases
-alias ll='ls -l'
-alias la='ls -A'
+alias la='ls -lA'
 
 # git aliases
 alias gist='git status'
