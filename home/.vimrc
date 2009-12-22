@@ -120,12 +120,12 @@ xnoremap <C-A> <C-C>ggVG
 
 " change appearance
 if has("gui_running")
-  set guifont=Courier\ 10\ Pitch\ 8
+  set guifont=Courier\ 10\ Pitch\ 10
   set guioptions-=T	" no toolbar
-  set guioptions-=t       " no tearoff menuitems
+  set guioptions-=t	" no tearoff menuitems
   set guioptions-=m	" no menu
-  set guioptions+=l       " left scrollbar
-  set guioptions-=r       " no right scrollbar
+  set guioptions+=l	" left scrollbar
+  set guioptions-=r	" no right scrollbar
 endif
 
 set winaltkeys=no	" Alt+? not used for the menu
@@ -197,4 +197,4 @@ function! GuiTabLabel()
 endfunction
 set guitablabel=%{GuiTabLabel()}
 
-" vim:set noexpandtab ts=8 sts=8:
+" vim: noexpandtab nowrap ts=8 sts=8:
