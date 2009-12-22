@@ -4,11 +4,14 @@
 echo sudo aptitude -y install \
   xorg \
   fluxbox \
-  thunar \
+  thunar
+
+# gvim!
+sudo aptitude -y install \
   vim-gtk
 
 # utils
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   unison \
   apt-file \
   acpi \
@@ -22,16 +25,17 @@ echo sudo aptitude -y install \
   locate \
   powertop \
   unzip \
+  whois \
   wget
 
 # coding
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   gcc \
   g++ \
   make
 
 # coding docs
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   gcc-doc \
   manpages \
   manpages-dev \
@@ -40,14 +44,14 @@ echo sudo aptitude -y install \
   manpages-posix-dev
 
 # graphics
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   gimp \
   imagemagick \
   vlc \
   gpicview
 
 # latex
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   evince \
   texlive-latex-base \
   texlive-latex-recommended \
@@ -60,7 +64,7 @@ echo sudo aptitude -y install \
 #  texlive-latex-extra-doc
 
 # office
-echo sudo aptitude -y install \
+sudo aptitude -y install \
   openoffice.org-writer \
   openoffice.org-calc
 
