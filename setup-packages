@@ -71,6 +71,7 @@ sudo aptitude -y install \
 # internet
 echo sudo aptitude -y install \
   firefox \
+  flashplugin-installer \
   pidgin \
   sun-java6-plugin
 
