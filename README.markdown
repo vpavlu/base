@@ -1,19 +1,23 @@
-config files and bootstrapping script for fresh setups
+# config files and bootstrapping script for fresh setups
 
-  wget http://github.com/vpavlu/base/raw/master/bootstrap.sh && . bootstrap.sh
+    curl http://github.com/vpavlu/base/raw/master/bootstrap.sh > bootstrap.sh
+    . bootstrap.sh
 
-
-includes
+# includes
  - console autologin on tty1 w/ rungetty
+
    everybody can use my notebook for browsing the web etc.
 
  - setup and use [LUKS][1] partition for private data
+
    only I may read/write my private files
 
  - synchronise private files with remote encrypted container
+
    that way I keep my private files in sync on all my machines
 
  - setup drei.at WWAN stick w/ pppd
+
    connect to drei.at w/o NetworkManager
 
  - somewhat sensible aptitude package selection
@@ -23,4 +27,4 @@ includes
  - and other dotfiles
 
 
-[1]: [http://code.google.com/p/cryptsetup/]
+[1]: [http://code.google.com/p/cryptsetup/] "LUKS"
