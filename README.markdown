@@ -18,7 +18,7 @@
 
  - somewhat basic package selection
 
- - my personal .vimrc
+ - my personal <a href="http://github.com/vpavlu/base/raw/master/home/.vimrc">.vimrc</a>
 
  - and other dotfiles
 
