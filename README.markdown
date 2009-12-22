@@ -4,7 +4,7 @@
     . bootstrap.sh
 
 # includes
- - console autologin on tty1 w/ rungetty.
+ - console autologin on tty1 w/ rungetty (optional).
    everybody can use my notebook for browsing the web etc.
 
  - setup and use [LUKS][1] partition for private data.
