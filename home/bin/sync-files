@@ -20,8 +20,6 @@ if ssh plain.at bin/luks is_mounted; then
     -batch\
     -sortnewfirst\
     -xferbycopying\
-    -maxbackups 10\
-    -backup 'Name *'\
     ~/data ssh://vpavlu@plain.at/data
 else
   echo "luks not ready"
