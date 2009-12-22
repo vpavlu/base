@@ -2,7 +2,7 @@
 
 # -- get custom files from git repo
 sudo aptitude -y install git-core
-git clone --depth 1 ssh://plain.at/home/vpavlu/base
+git clone --depth 1 git://github.com/vpavlu/base.git 
 rm -rf base/.git
 cp -rfv base/home/* $HOME/
 
